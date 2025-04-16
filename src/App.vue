@@ -24,7 +24,7 @@
 <script setup>
 import { onMounted } from 'vue';
 import { useCartStore } from './stores/cartStore';
-import Navbar from './components/layout/NavBar.vue';
+import Navbar from './components/layout/Navbar.vue';
 import Footer from './components/layout/Footer.vue';
 import Toast from './components/common/Toast.vue';
 
