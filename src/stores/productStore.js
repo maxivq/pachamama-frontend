@@ -84,24 +84,23 @@ export const useProductStore = defineStore('product', {
     },
 
     // Crear un nuevo producto (requiere autenticación)
-    async createProduct(productData) {
+    async createProduct(product) {
       this.loading = true;
       this.error = null;
       
       try {
-        const authStore = useAuthStore();
-        const headers = authStore.getAuthHeaders();
+        const response = await axios.post(`${API_URL}/api/products`, product, {
+          headers: authStore.getAuthHeaders()
+        });
         
-        const response = await axios.post(
-          `${API_URL}/api/products`, 
-          productData,
-          { headers }
-        );
+        // Después de crear un producto exitosamente, actualizar categorías
+        if (product.category && !this.categories.includes(product.category)) {
+          await this.fetchCategories();
+        }
         
-        this.products.push(response.data.data);
-        return response.data.data;
+        return response.data;
       } catch (error) {
-        this.error = error.response?.data?.message || 'Error al crear producto';
+        this.error = error.response?.data?.message || 'Error al crear el producto';
         console.error('Error creating product:', error);
         throw error;
       } finally {
@@ -109,35 +108,29 @@ export const useProductStore = defineStore('product', {
       }
     },
     
-    // Actualizar un producto (requiere autenticación)
-    async updateProduct(id, productData) {
+    async updateProduct(id, product) {
       this.loading = true;
       this.error = null;
       
       try {
-        const authStore = useAuthStore();
-        const headers = authStore.getAuthHeaders();
+        const response = await axios.put(`${API_URL}/api/products/${id}`, product, {
+          headers: authStore.getAuthHeaders()
+        });
         
-        const response = await axios.put(
-          `${API_URL}/api/products/${id}`, 
-          productData,
-          { headers }
-        );
-        
-        const index = this.products.findIndex(p => p._id === id);
-        if (index !== -1) {
-          this.products[index] = response.data.data;
+        // Después de actualizar un producto, verificar si hay nueva categoría
+        if (product.category && !this.categories.includes(product.category)) {
+          await this.fetchCategories();
         }
-        return response.data.data;
+        
+        return response.data;
       } catch (error) {
-        this.error = error.response?.data?.message || 'Error al actualizar producto';
+        this.error = error.response?.data?.message || 'Error al actualizar el producto';
         console.error('Error updating product:', error);
         throw error;
       } finally {
         this.loading = false;
       }
     },
-    
     // Eliminar un producto (requiere autenticación)
     async deleteProduct(id) {
       this.loading = true;

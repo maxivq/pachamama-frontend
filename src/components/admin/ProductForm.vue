@@ -169,6 +169,32 @@
   const cancel = () => {
     emit('cancel');
   };
+
+  // Añadir una función para actualizar categorías localmente
+const addNewCategoryToList = (categoryName) => {
+  if (categoryName && !categories.value.includes(categoryName)) {
+    // Técnicamente esto modifica un computed, lo que no es ideal,
+    // pero usaremos refetch de todos modos
+    productStore.categories.push(categoryName);
+  }
+};
+
+const submitForm = () => {
+  // Crear una copia del objeto para no modificar el original
+  const formData = { ...productData };
+  
+  // Si seleccionaron nueva categoría, usar el valor ingresado
+  if (formData.category === 'new') {
+    formData.category = newCategory.value;
+    
+    // Añadir la nueva categoría localmente para actualización inmediata
+    addNewCategoryToList(newCategory.value);
+  }
+  
+  // Emitir evento con los datos del formulario
+  emit('submit', formData);
+};
+
   </script>
   
   <style scoped>

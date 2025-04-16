@@ -65,6 +65,39 @@
   watch(() => productStore.selectedCategory, (newValue) => {
     selectedCategory.value = newValue;
   });
+
+  // Cargar categorías al montar el componente y usar watch para mantenerlas frescas
+onMounted(async () => {
+  await productStore.fetchCategories();
+});
+
+// Refrescar categorías cuando el componente se active (en caso de navegación)
+const refreshCategories = async () => {
+  if (categories.value.length === 0) {
+    await productStore.fetchCategories();
+  }
+};
+
+// Si estás usando vue-router, puedes usar el hook onBeforeRouteEnter
+// O podemos usar una actualización periódica
+const setupPeriodicRefresh = () => {
+  // Verificar categorías cada vez que el usuario regresa a la página
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      refreshCategories();
+    }
+  });
+};
+
+onMounted(() => {
+  refreshCategories();
+  setupPeriodicRefresh();
+});
+
+// Limpiar event listener
+onUnmounted(() => {
+  document.removeEventListener('visibilitychange', refreshCategories);
+});
   </script>
   
   <style scoped>

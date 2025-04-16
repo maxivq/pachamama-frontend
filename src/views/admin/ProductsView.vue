@@ -118,6 +118,9 @@ const saveProduct = async (productToSave) => {
       notification.success('Producto creado correctamente');
     }
     
+    // Explicitar refresco de categorías
+    await productStore.fetchCategories();
+    
     resetForm();
     loadProducts();
   } catch (error) {
