@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     isAdmin: false,
@@ -16,7 +18,7 @@ export const useAuthStore = defineStore('auth', {
       this.error = null;
       
       try {
-        const response = await axios.post('http://localhost:5000/api/auth/admin-access', {
+        const response = await axios.post(`${API_URL}/api/auth/admin-access`, {
           secretKey
         });
         
