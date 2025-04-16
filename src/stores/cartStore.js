@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 export const useCartStore = defineStore('cart', {
   state: () => ({
     cart: { items: [] },
@@ -42,7 +44,7 @@ export const useCartStore = defineStore('cart', {
       this.error = null;
       
       try {
-        const response = await axios.get(`http://localhost:5000/api/cart/${this.sessionId}`);
+        const response = await axios.get(`${API_URL}/api/cart/${this.sessionId}`);
         this.cart = response.data.data || { items: [] };
       } catch (error) {
         this.error = error.message || 'Error al cargar el carrito';
