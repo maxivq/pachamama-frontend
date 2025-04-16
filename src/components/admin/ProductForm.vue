@@ -152,41 +152,37 @@
       newCategory.value = '';
     }
   });
-
+  
+  const submitForm = () => {
+    console.log("Formulario enviado con datos:", productData);
+    
+    // Crear una copia del objeto para no modificar el original
+    const formData = { ...productData };
+    
+    // Si seleccionaron nueva categoría, usar el valor ingresado
+    if (formData.category === 'new' && newCategory.value) {
+      formData.category = newCategory.value;
+      
+      // Añadir la nueva categoría localmente para actualización inmediata
+      if (newCategory.value && !categories.value.includes(newCategory.value)) {
+        productStore.categories.push(newCategory.value);
+      }
+    }
+    
+    // Validar datos
+    if (!formData.title || !formData.description || formData.price <= 0 || !formData.imageUrl) {
+      console.error("Faltan campos requeridos o son inválidos");
+      return;
+    }
+    
+    console.log("Datos a enviar:", formData);
+    // Emitir evento con los datos del formulario
+    emit('submit', formData);
+  };
+  
   const cancel = () => {
     emit('cancel');
   };
-
-  // Añadir una función para actualizar categorías localmente
-const addNewCategoryToList = (categoryName) => {
-  if (categoryName && !categories.value.includes(categoryName)) {
-    // Técnicamente esto modifica un computed, lo que no es ideal,
-    // pero usaremos refetch de todos modos
-    productStore.categories.push(categoryName);
-  }
-};
-
-const submitForm = () => {
-  // Crear una copia del objeto para no modificar el original
-  const formData = { ...productData };
-  
-  // Si seleccionaron nueva categoría, usar el valor ingresado
-  if (formData.category === 'new') {
-    formData.category = newCategory.value;
-    
-    // Añadir la nueva categoría localmente para actualización inmediata
-    if (newCategory.value && !categories.value.includes(newCategory.value)) {
-      productStore.categories.push(newCategory.value);
-    }
-  }
-  
-  // Emitir evento con los datos del formulario
-  emit('submit', formData);
-};
-  
-  // Emitir evento con los datos del formulario
-  emit('submit', formData);
-
   </script>
   
   <style scoped>
@@ -219,7 +215,7 @@ const submitForm = () => {
   .form-group textarea,
   .form-group select {
     padding: 10px;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border-color, #ddd);
     border-radius: 4px;
     font-size: 1rem;
   }
@@ -236,7 +232,7 @@ const submitForm = () => {
   }
   
   .save-btn {
-    background-color: var(--primary-color);
+    background-color: var(--primary-color, #5f8e3e);
     color: white;
     border: none;
     padding: 10px 15px;
@@ -246,13 +242,13 @@ const submitForm = () => {
   }
   
   .save-btn:hover {
-    background-color: var(--primary-dark);
+    background-color: var(--primary-dark, #4c7332);
   }
   
   .cancel-btn {
     background-color: transparent;
-    color: var(--error-color);
-    border: 1px solid var(--error-color);
+    color: var(--error-color, #b71c1c);
+    border: 1px solid var(--error-color, #b71c1c);
     padding: 10px 15px;
     border-radius: 4px;
     cursor: pointer;

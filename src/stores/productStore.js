@@ -1,6 +1,6 @@
-import { useAuthStore } from './authStore';
 import { defineStore } from 'pinia';
 import axios from 'axios';
+import { useAuthStore } from './authStore';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -45,12 +45,39 @@ export const useProductStore = defineStore('product', {
       }
     },
     
+    async fetchProduct(id) {
+      this.loading = true;
+      this.error = null;
+      
+      try {
+        const response = await axios.get(`${API_URL}/api/products/${id}`);
+        return response.data;
+      } catch (error) {
+        this.error = 'Error al cargar el producto';
+        console.error('Error fetching product:', error);
+        return null;
+      } finally {
+        this.loading = false;
+      }
+    },
+    
     async fetchCategories() {
       try {
         const response = await axios.get(`${API_URL}/api/products/categories`);
-        this.categories = response.data;
+        // Si no hay categorías o hubo un error, usar al menos 'General'
+        if (response.data && Array.isArray(response.data)) {
+          this.categories = response.data;
+          // Asegurar que 'General' siempre existe
+          if (!this.categories.includes('General')) {
+            this.categories.push('General');
+          }
+        } else {
+          this.categories = ['General'];
+        }
       } catch (error) {
         console.error('Error fetching categories:', error);
+        // En caso de error, establecer al menos 'General'
+        this.categories = ['General'];
       }
     },
     
@@ -66,26 +93,31 @@ export const useProductStore = defineStore('product', {
       this.searchTerm = '';
       this.selectedCategory = 'all';
     },
-
-    // Crear un nuevo producto (requiere autenticación)
+    
+    // Métodos para administración
     async createProduct(product) {
       this.loading = true;
       this.error = null;
       
       try {
+        console.log("Enviando al backend:", product);
+        
+        const authStore = useAuthStore();
         const response = await axios.post(`${API_URL}/api/products`, product, {
           headers: authStore.getAuthHeaders()
         });
         
-        // Después de crear un producto exitosamente, actualizar categorías
+        console.log("Respuesta del backend:", response.data);
+        
+        // Actualizar categorías si es necesario
         if (product.category && !this.categories.includes(product.category)) {
-          await this.fetchCategories();
+          this.categories.push(product.category);
         }
         
         return response.data;
       } catch (error) {
+        console.error("Error completo:", error);
         this.error = error.response?.data?.message || 'Error al crear el producto';
-        console.error('Error creating product:', error);
         throw error;
       } finally {
         this.loading = false;
@@ -97,41 +129,43 @@ export const useProductStore = defineStore('product', {
       this.error = null;
       
       try {
+        console.log(`Actualizando producto ${id}:`, product);
+        
+        const authStore = useAuthStore();
         const response = await axios.put(`${API_URL}/api/products/${id}`, product, {
           headers: authStore.getAuthHeaders()
         });
         
-        // Después de actualizar un producto, verificar si hay nueva categoría
+        console.log("Respuesta de actualización:", response.data);
+        
+        // Actualizar categorías si es necesario
         if (product.category && !this.categories.includes(product.category)) {
-          await this.fetchCategories();
+          this.categories.push(product.category);
         }
         
         return response.data;
       } catch (error) {
+        console.error("Error completo:", error);
         this.error = error.response?.data?.message || 'Error al actualizar el producto';
-        console.error('Error updating product:', error);
         throw error;
       } finally {
         this.loading = false;
       }
     },
-    // Eliminar un producto (requiere autenticación)
+    
     async deleteProduct(id) {
       this.loading = true;
       this.error = null;
       
       try {
         const authStore = useAuthStore();
-        const headers = authStore.getAuthHeaders();
+        await axios.delete(`${API_URL}/api/products/${id}`, {
+          headers: authStore.getAuthHeaders()
+        });
         
-        await axios.delete(
-          `${API_URL}/api/products/${id}`,
-          { headers }
-        );
-        
-        this.products = this.products.filter(p => p._id !== id);
+        return true;
       } catch (error) {
-        this.error = error.response?.data?.message || 'Error al eliminar producto';
+        this.error = error.response?.data?.message || 'Error al eliminar el producto';
         console.error('Error deleting product:', error);
         throw error;
       } finally {
