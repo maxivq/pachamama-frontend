@@ -63,21 +63,43 @@ export const useProductStore = defineStore('product', {
     
     async fetchCategories() {
       try {
+        console.log('Solicitando categorías al backend...');
         const response = await axios.get(`${API_URL}/api/products/categories`);
-        // Si no hay categorías o hubo un error, usar al menos 'General'
+        
+        console.log('Respuesta del backend para categorías:', response.data);
+        
         if (response.data && Array.isArray(response.data)) {
+          // Asignar categorías recibidas
           this.categories = response.data;
-          // Asegurar que 'General' siempre existe
-          if (!this.categories.includes('General')) {
-            this.categories.push('General');
-          }
         } else {
-          this.categories = ['General'];
+          console.warn('La respuesta no es un array, usando array vacío');
+          this.categories = [];
         }
       } catch (error) {
-        console.error('Error fetching categories:', error);
-        // En caso de error, establecer al menos 'General'
-        this.categories = ['General'];
+        console.error('Error detallado al obtener categorías:', error);
+        
+        // Recuperación de error: obtener categorías directamente de los productos
+        try {
+          console.log('Intentando obtener categorías de los productos existentes...');
+          const productsResponse = await axios.get(`${API_URL}/api/products`);
+          
+          if (productsResponse.data && Array.isArray(productsResponse.data)) {
+            // Extraer categorías únicas de los productos
+            const categoriesFromProducts = [...new Set(
+              productsResponse.data
+                .map(product => product.category)
+                .filter(cat => cat && cat !== 'General')
+            )];
+            
+            console.log('Categorías extraídas de productos:', categoriesFromProducts);
+            this.categories = categoriesFromProducts;
+          } else {
+            this.categories = [];
+          }
+        } catch (fallbackError) {
+          console.error('Error en recuperación fallback de categorías:', fallbackError);
+          this.categories = [];
+        }
       }
     },
     
