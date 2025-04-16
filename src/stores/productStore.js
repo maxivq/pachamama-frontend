@@ -61,46 +61,35 @@ export const useProductStore = defineStore('product', {
       }
     },
     
+    // Nueva versión que extrae categorías directamente de los productos
     async fetchCategories() {
       try {
-        console.log('Solicitando categorías al backend...');
-        const response = await axios.get(`${API_URL}/api/products/categories`);
-        
-        console.log('Respuesta del backend para categorías:', response.data);
-        
-        if (response.data && Array.isArray(response.data)) {
-          // Asignar categorías recibidas
-          this.categories = response.data;
-        } else {
-          console.warn('La respuesta no es un array, usando array vacío');
-          this.categories = [];
+        // Nos aseguramos de que los productos estén cargados
+        if (this.products.length === 0) {
+          await this.fetchProducts();
         }
-      } catch (error) {
-        console.error('Error detallado al obtener categorías:', error);
         
-        // Recuperación de error: obtener categorías directamente de los productos
-        try {
-          console.log('Intentando obtener categorías de los productos existentes...');
-          const productsResponse = await axios.get(`${API_URL}/api/products`);
-          
-          if (productsResponse.data && Array.isArray(productsResponse.data)) {
-            // Extraer categorías únicas de los productos
-            const categoriesFromProducts = [...new Set(
-              productsResponse.data
-                .map(product => product.category)
-                .filter(cat => cat && cat !== 'General')
-            )];
-            
-            console.log('Categorías extraídas de productos:', categoriesFromProducts);
-            this.categories = categoriesFromProducts;
-          } else {
-            this.categories = [];
+        // Extraer categorías únicas de los productos
+        const categoriesSet = new Set();
+        
+        this.products.forEach(product => {
+          if (product.category && 
+              typeof product.category === 'string' && 
+              product.category.trim() !== '' &&
+              product.category !== 'General') {
+            categoriesSet.add(product.category.trim());
           }
-        } catch (fallbackError) {
-          console.error('Error en recuperación fallback de categorías:', fallbackError);
-          this.categories = [];
-        }
+        });
+        
+        // Convertir Set a Array y asignar
+        this.categories = Array.from(categoriesSet);
+        console.log('Categorías extraídas de productos:', this.categories);
+      } catch (error) {
+        console.error('Error al extraer categorías de productos:', error);
+        this.categories = [];
       }
+      
+      return this.categories;
     },
     
     setSearchTerm(term) {
@@ -132,7 +121,9 @@ export const useProductStore = defineStore('product', {
         console.log("Respuesta del backend:", response.data);
         
         // Actualizar categorías si es necesario
-        if (product.category && !this.categories.includes(product.category)) {
+        if (product.category && 
+            product.category !== 'General' && 
+            !this.categories.includes(product.category)) {
           this.categories.push(product.category);
         }
         
@@ -161,7 +152,9 @@ export const useProductStore = defineStore('product', {
         console.log("Respuesta de actualización:", response.data);
         
         // Actualizar categorías si es necesario
-        if (product.category && !this.categories.includes(product.category)) {
+        if (product.category && 
+            product.category !== 'General' && 
+            !this.categories.includes(product.category)) {
           this.categories.push(product.category);
         }
         

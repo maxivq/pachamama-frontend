@@ -2,6 +2,7 @@
   <div class="home">
     <h1>Nuestros Productos</h1>
     
+    <!-- Componente de búsqueda y filtro -->
     <SearchFilter />
     
     <div v-if="loading" class="loading">
@@ -69,9 +70,12 @@ const resetFilters = () => {
   productStore.fetchProducts();
 };
 
-onMounted(() => {
+onMounted(async () => {
   authStore.initAuth();
-  loadProducts();
+  // Primero cargar productos
+  await loadProducts();
+  // Luego extraer categorías de los productos
+  await productStore.fetchCategories();
 });
 </script>
 

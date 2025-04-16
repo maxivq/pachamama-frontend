@@ -15,7 +15,11 @@
       <div class="category-filter">
         <select v-model="selectedCategory" @change="filterByCategory">
           <option value="all">Todas las categorías</option>
-          <option v-for="category in categories" :key="category" :value="category">
+          <option 
+            v-for="category in categories" 
+            :key="category" 
+            :value="category"
+          >
             {{ category }}
           </option>
         </select>
@@ -24,7 +28,7 @@
   </template>
   
   <script setup>
-  import { ref, computed, onMounted, watch } from 'vue';
+  import { ref, computed, watch } from 'vue';
   import { useProductStore } from '../../stores/productStore';
   
   const productStore = useProductStore();
@@ -51,13 +55,6 @@
     productStore.setCategory(selectedCategory.value);
     productStore.fetchProducts();
   };
-  
-  // Cargar categorías al montar el componente
-  onMounted(async () => {
-    console.log("Cargando categorías...");
-    await productStore.fetchCategories();
-    console.log("Categorías cargadas:", productStore.categories);
-  });
   
   // Sincronizar con store
   watch(() => productStore.searchTerm, (newValue) => {
