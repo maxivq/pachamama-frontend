@@ -1,0 +1,96 @@
+<template>
+  <div class="home">
+    <h1>Nuestros Productos</h1>
+
+    <div v-if="loading" class="loading">
+      <p>Cargando productos...</p>
+    </div>
+
+    <div v-else-if="error" class="error">
+      <p>{{ error }}</p>
+      <button @click="loadProducts">Intentar nuevamente</button>
+    </div>
+
+    <div v-else-if="products.length === 0" class="empty-state">
+      <p>No hay productos disponibles.</p>
+    </div>
+
+    <div v-else class="products-grid">
+      <ProductCard v-for="product in products" :key="product._id" :product="product" @add-to-cart="addToCart" />
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted, computed } from 'vue';
+import { useProductStore } from '../stores/productStore';
+import { useCartStore } from '../stores/cartStore';
+import { useAuthStore } from '../stores/authStore';
+import ProductCard from '../components/shop/ProductCard.vue';
+
+const productStore = useProductStore();
+const cartStore = useCartStore();
+const authStore = useAuthStore();
+
+const loading = computed(() => productStore.loading);
+const error = computed(() => productStore.error);
+const products = computed(() => productStore.products);
+const isAdmin = computed(() => authStore.isAdmin);
+
+const loadProducts = async () => {
+  await productStore.fetchProducts();
+};
+
+const addToCart = async (productId) => {
+  // No añadir al carrito si es admin
+  if (isAdmin.value) return;
+
+  const success = await cartStore.addToCart(productId, 1);
+  if (success) {
+    // Puedes mostrar una notificación de éxito aquí
+    alert('Producto añadido al carrito');
+  }
+};
+
+onMounted(() => {
+  // Inicializar autenticación al cargar la página
+  authStore.initAuth();
+  loadProducts();
+});
+</script>
+
+<style scoped>
+.home {
+  padding: 20px 0;
+}
+
+h1 {
+  margin-bottom: 30px;
+  text-align: center;
+  color: var(--secondary-color);
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 30px;
+}
+
+.loading,
+.error,
+.empty-state {
+  text-align: center;
+  padding: 50px 0;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.error {
+  color: var(--accent-color);
+}
+
+.error button {
+  margin-top: 10px;
+}
+</style>
