@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL;
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -54,7 +54,7 @@ export const useAuthStore = defineStore('auth', {
       this.loading = true;
       
       try {
-        const response = await axios.post('http://localhost:5000/api/auth/verify-token', {
+        const response = await axios.post(`${API_URL}/api/auth/verify-token`, {
           token
         });
         

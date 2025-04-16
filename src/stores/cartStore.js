@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL;
 
 export const useCartStore = defineStore('cart', {
   state: () => ({
@@ -64,7 +64,7 @@ export const useCartStore = defineStore('cart', {
       this.error = null;
       
       try {
-        const response = await axios.post('http://localhost:5000/api/cart/add', {
+        const response = await axios.post(`${API_URL}/api/cart/add`, {
           sessionId: this.sessionId,
           productId,
           quantity
@@ -91,7 +91,7 @@ export const useCartStore = defineStore('cart', {
       this.error = null;
       
       try {
-        const response = await axios.post('http://localhost:5000/api/cart/remove', {
+        const response = await axios.post(`${API_URL}/api/cart/remove`, {
           sessionId: this.sessionId,
           productId
         });
@@ -117,7 +117,7 @@ export const useCartStore = defineStore('cart', {
       this.error = null;
       
       try {
-        const response = await axios.post('http://localhost:5000/api/cart/clear', {
+        const response = await axios.post(`${API_URL}/api/cart/clear`, {
           sessionId: this.sessionId
         });
         
@@ -144,7 +144,7 @@ export const useCartStore = defineStore('cart', {
       try {
         const { name = '', address = '', phone = '', comments = '' } = customerInfo || {};
         
-        const response = await axios.post('http://localhost:5000/api/cart/checkout', {
+        const response = await axios.post(`${API_URL}/api/cart/checkout`, {
           sessionId: this.sessionId,
           customerName: name,
           customerAddress: address,

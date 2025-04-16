@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import axios from 'axios';
 import { useAuthStore } from './authStore';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL;
 
 export const useProductStore = defineStore('product', {
   state: () => ({
@@ -35,7 +35,7 @@ export const useProductStore = defineStore('product', {
       this.error = null;
       
       try {
-        const response = await axios.get(`http://localhost:5000/api/products/${id}`);
+        const response = await axios.get(`${API_URL}/api/products/${id}`);
         this.product = response.data.data;
       } catch (error) {
         this.error = error.message || 'Error al cargar el producto';
@@ -55,7 +55,7 @@ export const useProductStore = defineStore('product', {
         const headers = authStore.getAuthHeaders();
         
         const response = await axios.post(
-          'http://localhost:5000/api/products', 
+          `${API_URL}/api/products`, 
           productData,
           { headers }
         );
@@ -81,7 +81,7 @@ export const useProductStore = defineStore('product', {
         const headers = authStore.getAuthHeaders();
         
         const response = await axios.put(
-          `http://localhost:5000/api/products/${id}`, 
+          `${API_URL}/api/products/${id}`, 
           productData,
           { headers }
         );
@@ -110,7 +110,7 @@ export const useProductStore = defineStore('product', {
         const headers = authStore.getAuthHeaders();
         
         await axios.delete(
-          `http://localhost:5000/api/products/${id}`,
+          `${API_URL}/api/products/${id}`,
           { headers }
         );
         
