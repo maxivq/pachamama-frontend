@@ -26,11 +26,13 @@ import { ref, onMounted, computed } from 'vue';
 import { useProductStore } from '../stores/productStore';
 import { useCartStore } from '../stores/cartStore';
 import { useAuthStore } from '../stores/authStore';
+import { useNotificationStore } from '../stores/notificationStore';
 import ProductCard from '../components/shop/ProductCard.vue';
 
 const productStore = useProductStore();
 const cartStore = useCartStore();
 const authStore = useAuthStore();
+const notification = useNotificationStore();
 
 const loading = computed(() => productStore.loading);
 const error = computed(() => productStore.error);
@@ -44,11 +46,12 @@ const loadProducts = async () => {
 const addToCart = async (productId) => {
   // No añadir al carrito si es admin
   if (isAdmin.value) return;
-
+  
   const success = await cartStore.addToCart(productId, 1);
   if (success) {
-    // Puedes mostrar una notificación de éxito aquí
-    alert('Producto añadido al carrito');
+    notification.success('Producto añadido al carrito');
+  } else {
+    notification.error('No se pudo añadir el producto al carrito');
   }
 };
 

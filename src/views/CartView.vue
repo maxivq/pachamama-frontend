@@ -99,8 +99,10 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useCartStore } from '../stores/cartStore';
+import { useNotificationStore } from '../stores/notificationStore';
 
 const cartStore = useCartStore();
+const notification = useNotificationStore();
 
 const loading = computed(() => cartStore.loading);
 const error = computed(() => cartStore.error);
@@ -127,42 +129,48 @@ const handleImageError = (e) => {
 
 // Eliminar un producto específico del carrito
 const removeItem = async (productId) => {
-    if (confirm('¿Quieres eliminar este producto de tu carrito?')) {
-        await cartStore.removeFromCart(productId);
+  if (confirm('¿Quieres eliminar este producto de tu carrito?')) {
+    const success = await cartStore.removeFromCart(productId);
+    if (success) {
+      notification.success('Producto eliminado del carrito');
+    } else {
+      notification.error('No se pudo eliminar el producto');
     }
+  }
 };
 
-// Vaciar todo el carrito
 const confirmClearCart = () => {
-    if (confirm('¿Estás seguro de que quieres vaciar todo el carrito?')) {
-        cartStore.clearCart();
-    }
+  if (confirm('¿Estás seguro de que quieres vaciar todo el carrito?')) {
+    cartStore.clearCart();
+    notification.warning('Se ha vaciado el carrito');
+  }
 };
 
 const checkout = async () => {
-    if (cartItems.value.length === 0) {
-        alert('Tu carrito está vacío');
-        return;
-    }
-
-    if (!customerInfo.value.name || !customerInfo.value.address) {
-        alert('Por favor completa tu nombre y dirección para continuar');
-        return;
-    }
-
-    const success = await cartStore.checkoutToWhatsApp(customerInfo.value);
-
-    if (success) {
-        // Resetear el formulario después de un checkout exitoso
-        customerInfo.value = {
-            name: '',
-            address: '',
-            phone: '',
-            comments: ''
-        };
-    } else {
-        alert('Ha ocurrido un error al procesar tu pedido. Por favor, intenta nuevamente.');
-    }
+  if (cartItems.value.length === 0) {
+    notification.warning('Tu carrito está vacío');
+    return;
+  }
+  
+  if (!customerInfo.value.name || !customerInfo.value.address) {
+    notification.error('Por favor completa tu nombre y dirección para continuar');
+    return;
+  }
+  
+  const success = await cartStore.checkoutToWhatsApp(customerInfo.value);
+  
+  if (success) {
+    notification.success('¡Pedido enviado! Abriendo WhatsApp...');
+    // Resetear el formulario después de un checkout exitoso
+    customerInfo.value = {
+      name: '',
+      address: '',
+      phone: '',
+      comments: ''
+    };
+  } else {
+    notification.error('Ha ocurrido un error al procesar tu pedido. Por favor, intenta nuevamente.');
+  }
 };
 
 onMounted(() => {

@@ -15,14 +15,18 @@
     <footer>
       <Footer />
     </footer>
+    
+    <!-- Añadir componente Toast -->
+    <Toast />
   </div>
 </template>
 
 <script setup>
 import { onMounted } from 'vue';
 import { useCartStore } from './stores/cartStore';
-import Navbar from './components/layout/Navbar.vue';
+import Navbar from './components/layout/NavBar.vue';
 import Footer from './components/layout/Footer.vue';
+import Toast from './components/common/Toast.vue';
 
 const cartStore = useCartStore();
 

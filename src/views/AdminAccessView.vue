@@ -41,12 +41,14 @@
   </template>
   
   <script setup>
-  import { ref, onMounted, computed } from 'vue';
-  import { useRouter } from 'vue-router';
-  import { useAuthStore } from '../stores/authStore';
-  
-  const router = useRouter();
-  const authStore = useAuthStore();
+import { ref, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { useAuthStore } from '../stores/authStore';
+import { useNotificationStore } from '../stores/notificationStore';
+
+const router = useRouter();
+const authStore = useAuthStore();
+const notification = useNotificationStore();
   
   const secretKey = ref('');
   const error = ref('');
@@ -54,23 +56,25 @@
   const loading = computed(() => authStore.loading);
   
   const verifyAccess = async () => {
-    if (!secretKey.value) {
-      error.value = 'Por favor ingresa la clave secreta';
-      return;
-    }
-    
-    const isValid = await authStore.verifyAdminAccess(secretKey.value);
-    
-    if (isValid) {
-      router.push('/admin/products');
-    } else {
-      error.value = authStore.error || 'Clave secreta incorrecta';
-    }
-  };
+  if (!secretKey.value) {
+    notification.warning('Por favor ingresa la clave secreta');
+    return;
+  }
   
-  const logout = () => {
-    authStore.logout();
-  };
+  const isValid = await authStore.verifyAdminAccess(secretKey.value);
+  
+  if (isValid) {
+    notification.success('Acceso concedido');
+    router.push('/admin/products');
+  } else {
+    notification.error(authStore.error || 'Clave secreta incorrecta');
+  }
+};
+
+const logout = () => {
+  authStore.logout();
+  notification.info('Has cerrado sesión');
+};
   
   onMounted(async () => {
     // Verificar si el token guardado es válido
