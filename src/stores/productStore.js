@@ -2,7 +2,7 @@ import { useAuthStore } from './authStore';
 import { defineStore } from 'pinia';
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export const useProductStore = defineStore('product', {
   state: () => ({
@@ -40,22 +40,6 @@ export const useProductStore = defineStore('product', {
       } catch (error) {
         this.error = 'Error al cargar productos';
         console.error('Error fetching products:', error);
-      } finally {
-        this.loading = false;
-      }
-    },
-    
-    async fetchProduct(id) {
-      this.loading = true;
-      this.error = null;
-      
-      try {
-        const response = await axios.get(`${API_URL}/api/products/${id}`);
-        return response.data;
-      } catch (error) {
-        this.error = 'Error al cargar el producto';
-        console.error('Error fetching product:', error);
-        return null;
       } finally {
         this.loading = false;
       }

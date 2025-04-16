@@ -2,7 +2,6 @@
   <div class="home">
     <h1>Nuestros Productos</h1>
     
-    <!-- Añadir componente de búsqueda y filtro -->
     <SearchFilter />
     
     <div v-if="loading" class="loading">

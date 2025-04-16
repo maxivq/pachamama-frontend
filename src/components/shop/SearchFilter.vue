@@ -54,7 +54,9 @@
   
   // Cargar categorías al montar el componente
   onMounted(async () => {
+    console.log("Cargando categorías...");
     await productStore.fetchCategories();
+    console.log("Categorías cargadas:", productStore.categories);
   });
   
   // Sincronizar con store
@@ -65,39 +67,6 @@
   watch(() => productStore.selectedCategory, (newValue) => {
     selectedCategory.value = newValue;
   });
-
-  // Cargar categorías al montar el componente y usar watch para mantenerlas frescas
-onMounted(async () => {
-  await productStore.fetchCategories();
-});
-
-// Refrescar categorías cuando el componente se active (en caso de navegación)
-const refreshCategories = async () => {
-  if (categories.value.length === 0) {
-    await productStore.fetchCategories();
-  }
-};
-
-// Si estás usando vue-router, puedes usar el hook onBeforeRouteEnter
-// O podemos usar una actualización periódica
-const setupPeriodicRefresh = () => {
-  // Verificar categorías cada vez que el usuario regresa a la página
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') {
-      refreshCategories();
-    }
-  });
-};
-
-onMounted(() => {
-  refreshCategories();
-  setupPeriodicRefresh();
-});
-
-// Limpiar event listener
-onUnmounted(() => {
-  document.removeEventListener('visibilitychange', refreshCategories);
-});
   </script>
   
   <style scoped>
@@ -123,13 +92,13 @@ onUnmounted(() => {
   .search-bar input {
     flex: 1;
     padding: 10px 15px;
-    border: 1px solid var(--border-color);
+    border: 1px solid #ddd;
     border-radius: 4px 0 0 4px;
     font-size: 1rem;
   }
   
   .search-button {
-    background-color: var(--primary-color);
+    background-color: #5f8e3e;
     color: white;
     border: none;
     border-radius: 0 4px 4px 0;
@@ -139,7 +108,7 @@ onUnmounted(() => {
   
   .category-filter select {
     padding: 10px 15px;
-    border: 1px solid var(--border-color);
+    border: 1px solid #ddd;
     border-radius: 4px;
     background-color: white;
     font-size: 1rem;
