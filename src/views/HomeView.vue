@@ -1,33 +1,44 @@
 <template>
   <div class="home">
     <h1>Nuestros Productos</h1>
-
+    
+    <!-- Añadir componente de búsqueda y filtro -->
+    <SearchFilter />
+    
     <div v-if="loading" class="loading">
       <p>Cargando productos...</p>
     </div>
-
+    
     <div v-else-if="error" class="error">
       <p>{{ error }}</p>
-      <button @click="loadProducts">Intentar nuevamente</button>
     </div>
-
-    <div v-else-if="products.length === 0" class="empty-state">
-      <p>No hay productos disponibles.</p>
+    
+    <div v-else-if="!filteredProducts.length" class="no-results">
+      <p>No se encontraron productos que coincidan con tu búsqueda</p>
+      <button @click="resetFilters" class="reset-button">
+        Mostrar todos los productos
+      </button>
     </div>
-
+    
     <div v-else class="products-grid">
-      <ProductCard v-for="product in products" :key="product._id" :product="product" @add-to-cart="addToCart" />
+      <ProductCard 
+        v-for="product in filteredProducts" 
+        :key="product._id"
+        :product="product"
+        @add-to-cart="addToCart"
+      />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { onMounted, computed } from 'vue';
 import { useProductStore } from '../stores/productStore';
 import { useCartStore } from '../stores/cartStore';
 import { useAuthStore } from '../stores/authStore';
 import { useNotificationStore } from '../stores/notificationStore';
 import ProductCard from '../components/shop/ProductCard.vue';
+import SearchFilter from '../components/shop/SearchFilter.vue';
 
 const productStore = useProductStore();
 const cartStore = useCartStore();
@@ -36,7 +47,7 @@ const notification = useNotificationStore();
 
 const loading = computed(() => productStore.loading);
 const error = computed(() => productStore.error);
-const products = computed(() => productStore.products);
+const filteredProducts = computed(() => productStore.filteredProducts);
 const isAdmin = computed(() => authStore.isAdmin);
 
 const loadProducts = async () => {
@@ -44,7 +55,6 @@ const loadProducts = async () => {
 };
 
 const addToCart = async (productId) => {
-  // No añadir al carrito si es admin
   if (isAdmin.value) return;
   
   const success = await cartStore.addToCart(productId, 1);
@@ -55,8 +65,12 @@ const addToCart = async (productId) => {
   }
 };
 
+const resetFilters = () => {
+  productStore.resetFilters();
+  productStore.fetchProducts();
+};
+
 onMounted(() => {
-  // Inicializar autenticación al cargar la página
   authStore.initAuth();
   loadProducts();
 });

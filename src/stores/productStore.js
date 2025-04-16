@@ -1,50 +1,88 @@
+import { useAuthStore } from './authStore';
 import { defineStore } from 'pinia';
 import axios from 'axios';
-import { useAuthStore } from './authStore';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 export const useProductStore = defineStore('product', {
   state: () => ({
     products: [],
-    product: null,
+    categories: [],
     loading: false,
-    error: null
+    error: null,
+    searchTerm: '',
+    selectedCategory: 'all'
   }),
   
+  getters: {
+    filteredProducts: (state) => {
+      return state.products;
+    }
+  },
+  
   actions: {
-    // Obtener todos los productos
     async fetchProducts() {
       this.loading = true;
       this.error = null;
       
       try {
-        const response = await axios.get(`${API_URL}/api/products`);
-        this.products = response.data.data;
+        // Construir URL con parámetros de filtro
+        let url = `${API_URL}/api/products?`;
+        if (this.searchTerm) {
+          url += `search=${encodeURIComponent(this.searchTerm)}&`;
+        }
+        if (this.selectedCategory && this.selectedCategory !== 'all') {
+          url += `category=${encodeURIComponent(this.selectedCategory)}`;
+        }
+        
+        const response = await axios.get(url);
+        this.products = response.data;
       } catch (error) {
-        this.error = error.message || 'Error al cargar productos';
+        this.error = 'Error al cargar productos';
         console.error('Error fetching products:', error);
       } finally {
         this.loading = false;
       }
     },
     
-    // Obtener un producto por ID
     async fetchProduct(id) {
       this.loading = true;
       this.error = null;
       
       try {
         const response = await axios.get(`${API_URL}/api/products/${id}`);
-        this.product = response.data.data;
+        return response.data;
       } catch (error) {
-        this.error = error.message || 'Error al cargar el producto';
+        this.error = 'Error al cargar el producto';
         console.error('Error fetching product:', error);
+        return null;
       } finally {
         this.loading = false;
       }
     },
     
+    async fetchCategories() {
+      try {
+        const response = await axios.get(`${API_URL}/api/products/categories`);
+        this.categories = response.data;
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    },
+    
+    setSearchTerm(term) {
+      this.searchTerm = term;
+    },
+    
+    setCategory(category) {
+      this.selectedCategory = category;
+    },
+    
+    resetFilters() {
+      this.searchTerm = '';
+      this.selectedCategory = 'all';
+    },
+
     // Crear un nuevo producto (requiere autenticación)
     async createProduct(productData) {
       this.loading = true;
