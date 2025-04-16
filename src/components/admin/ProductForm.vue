@@ -152,20 +152,7 @@
       newCategory.value = '';
     }
   });
-  
-  const submitForm = () => {
-    // Crear una copia del objeto para no modificar el original
-    const formData = { ...productData };
-    
-    // Si seleccionaron nueva categoría, usar el valor ingresado
-    if (formData.category === 'new') {
-      formData.category = newCategory.value;
-    }
-    
-    // Emitir evento con los datos del formulario
-    emit('submit', formData);
-  };
-  
+
   const cancel = () => {
     emit('cancel');
   };
@@ -188,12 +175,17 @@ const submitForm = () => {
     formData.category = newCategory.value;
     
     // Añadir la nueva categoría localmente para actualización inmediata
-    addNewCategoryToList(newCategory.value);
+    if (newCategory.value && !categories.value.includes(newCategory.value)) {
+      productStore.categories.push(newCategory.value);
+    }
   }
   
   // Emitir evento con los datos del formulario
   emit('submit', formData);
 };
+  
+  // Emitir evento con los datos del formulario
+  emit('submit', formData);
 
   </script>
   
