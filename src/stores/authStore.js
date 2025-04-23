@@ -8,7 +8,8 @@ export const useAuthStore = defineStore('auth', {
     isAdmin: false,
     token: null,
     loading: false,
-    error: null
+    error: null,
+    lastTokenCheck: 0 // Timestamp de última verificación
   }),
   
   actions: {
@@ -25,6 +26,7 @@ export const useAuthStore = defineStore('auth', {
         if (response.data.success) {
           this.isAdmin = true;
           this.token = response.data.token;
+          this.lastTokenCheck = Date.now();
           
           // Guardar token en localStorage
           localStorage.setItem('pachamama-token', this.token);
@@ -40,6 +42,37 @@ export const useAuthStore = defineStore('auth', {
       } finally {
         this.loading = false;
       }
+    },
+    
+    // NUEVO: Verificar si el token podría estar expirado y renovarlo
+    async checkAndRefreshToken() {
+      const currentTime = Date.now();
+      const tokenAge = currentTime - this.lastTokenCheck;
+      
+      // Si han pasado más de 25 minutos desde la última verificación (tokens típicamente duran 30 min)
+      if (tokenAge > 25 * 60 * 1000) {
+        console.log('Token potencialmente expirado, verificando...');
+        
+        // Verificar validez del token actual
+        const isValid = await this.checkTokenValidity();
+        
+        if (!isValid) {
+          console.log('Token inválido, intentando relogin automático...');
+          // Aquí podrías implementar auto-login con refresh token
+          // o simplemente redirigir al login
+          
+          // Por ahora solo actualizamos el timestamp
+          this.lastTokenCheck = currentTime;
+          
+          // Devolver false indica que el token no es válido
+          return false;
+        }
+        
+        // Token es válido, actualizar timestamp
+        this.lastTokenCheck = currentTime;
+      }
+      
+      return true; // Token está bien
     },
     
     // Verificar si el token almacenado es válido
@@ -61,12 +94,14 @@ export const useAuthStore = defineStore('auth', {
         if (response.data.success) {
           this.isAdmin = true;
           this.token = token;
+          this.lastTokenCheck = Date.now();
           return true;
         } else {
           this.logout();
           return false;
         }
       } catch (error) {
+        console.error('Error verificando token:', error);
         this.logout();
         return false;
       } finally {
@@ -83,6 +118,7 @@ export const useAuthStore = defineStore('auth', {
     logout() {
       this.isAdmin = false;
       this.token = null;
+      this.lastTokenCheck = 0;
       localStorage.removeItem('pachamama-token');
     },
     
