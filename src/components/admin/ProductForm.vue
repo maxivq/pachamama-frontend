@@ -57,13 +57,12 @@
           required
           :class="{ 'error-field': fieldErrors.category }"
         >
-          <option value="General">General</option>
-          <option v-for="category in categories" 
-            :key="category" 
-            :value="category"
-            v-if="category !== 'General'"
+          <option 
+            v-for="category in displayCategories" 
+            :key="category.value" 
+            :value="category.value"
           >
-            {{ category }}
+            {{ category.label }}
           </option>
           <option value="new">+ Añadir nueva categoría</option>
         </select>
@@ -120,6 +119,7 @@
 import { ref, reactive, computed, onMounted, watch } from 'vue';
 import { useProductStore } from '../../stores/productStore';
 import { useNotificationStore } from '../../stores/notificationStore';
+import { capitalizeFirstLetter } from '../../utils/stringUtils';
 
 const props = defineProps({
   initialData: {
@@ -177,6 +177,14 @@ watch(() => props.isEditing, (newValue) => {
   }
 });
 
+// Categorías formateadas para mostrar
+const displayCategories = computed(() => {
+  return categories.value.map(category => ({
+    value: category, // Valor original
+    label: capitalizeFirstLetter(category) // Capitalizado para mostrar
+  }));
+});
+
 // Validar campos antes de enviar
 const validateForm = () => {
   let isValid = true;
@@ -231,13 +239,14 @@ const submitForm = async () => {
     // Crear una copia del objeto para no modificar el original
     const formData = { ...productData };
     
-    // Si seleccionaron nueva categoría, usar el valor ingresado
+    // Si seleccionaron nueva categoría, usar el valor ingresado y capitalizar
     if (formData.category === 'new' && newCategory.value) {
-      formData.category = newCategory.value;
+      // Capitalizar la nueva categoría
+      formData.category = capitalizeFirstLetter(newCategory.value);
       
       // Añadir la nueva categoría localmente para actualización inmediata
-      if (newCategory.value && !categories.value.includes(newCategory.value)) {
-        productStore.categories.push(newCategory.value);
+      if (newCategory.value && !categories.value.includes(formData.category)) {
+        productStore.categories.push(formData.category);
       }
     }
     

@@ -16,11 +16,11 @@
         <select v-model="selectedCategory" @change="filterByCategory">
           <option value="all">Todas las categorías</option>
           <option 
-            v-for="category in categories" 
-            :key="category" 
-            :value="category"
+            v-for="category in displayCategories" 
+            :key="category.value" 
+            :value="category.value"
           >
-            {{ category }}
+            {{ category.label }}
           </option>
         </select>
       </div>
@@ -30,6 +30,7 @@
   <script setup>
   import { ref, computed, watch } from 'vue';
   import { useProductStore } from '../../stores/productStore';
+  import { capitalizeFirstLetter } from '../../utils/stringUtils';
   
   const productStore = useProductStore();
   
@@ -63,6 +64,14 @@
   
   watch(() => productStore.selectedCategory, (newValue) => {
     selectedCategory.value = newValue;
+  });
+
+  // Categorías formateadas para mostrar
+  const displayCategories = computed(() => {
+    return categories.value.map(category => ({
+      value: category, // Valor original para filtrado
+      label: capitalizeFirstLetter(category) // Valor capitalizado para mostrar
+    }));
   });
   </script>
   
