@@ -20,7 +20,7 @@
             :key="category.value" 
             :value="category.value"
           >
-            {{ category.label }}
+          {{ capitalizeCategory(category) }}
           </option>
         </select>
       </div>
