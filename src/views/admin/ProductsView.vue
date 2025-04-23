@@ -33,6 +33,7 @@
               <h3>{{ product.title }}</h3>
               <p class="product-price">${{ product.price.toFixed(2) }}</p>
               <p class="product-category">Categoría: {{ product.category || 'General' }}</p>
+              <span class="product-category">{{ capitalizeCategory(product.category) }}</span>
             </div>
             
             <div class="product-actions">
@@ -55,6 +56,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useProductStore } from '../../stores/productStore';
 import { useNotificationStore } from '../../stores/notificationStore';
 import ProductForm from '../../components/admin/ProductForm.vue';
+import { capitalizeFirstLetter } from '../../utils/stringUtils';
 
 const productStore = useProductStore();
 const notification = useNotificationStore();
@@ -138,6 +140,10 @@ const confirmDelete = async (id) => {
       notification.error(`Error: ${error.message || 'No se pudo eliminar el producto'}`);
     }
   }
+};
+
+const capitalizeCategory = (category) => {
+  return capitalizeFirstLetter(category);
 };
 
 onMounted(() => {

@@ -58,11 +58,12 @@
           :class="{ 'error-field': fieldErrors.category }"
         >
           <option 
-            v-for="category in displayCategories" 
-            :key="category.value" 
-            :value="category.value"
+            v-for="category in categories" 
+            :key="category" 
+            :value="category"
+            v-if="category !== 'General'"
           >
-            {{ category.label }}
+            {{ capitalizeCategory(category) }}
           </option>
           <option value="new">+ Añadir nueva categoría</option>
         </select>
@@ -184,6 +185,11 @@ const displayCategories = computed(() => {
     label: capitalizeFirstLetter(category) // Capitalizado para mostrar
   }));
 });
+
+// Función para capitalizar categorías al mostrarlas
+const capitalizeCategory = (category) => {
+  return capitalizeFirstLetter(category);
+};
 
 // Validar campos antes de enviar
 const validateForm = () => {
