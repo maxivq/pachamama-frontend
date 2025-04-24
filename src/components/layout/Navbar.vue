@@ -1,9 +1,9 @@
 <template>
   <nav class="navbar">
-    <div class="container">
-      <router-link to="/" class="logo">
-        <span class="logo-text">Pachamama</span>
-      </router-link>
+    <div class="navbar-container">
+      <div class="navbar-brand">
+        <router-link to="/">Pachamama</router-link>
+      </div>
 
       <div class="navbar-links">
         <router-link to="/" class="nav-link">Inicio</router-link>
@@ -94,6 +94,7 @@ onMounted(() => {
   font-size: 1.5rem;
   font-weight: bold;
   text-decoration: none;
+  font-family: 'Rye', cursive; /* Añadir solo esta línea */
 }
 
 .navbar-links {
