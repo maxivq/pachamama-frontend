@@ -1,9 +1,9 @@
 <template>
   <nav class="navbar">
-    <div class="navbar-container">
-      <div class="navbar-brand">
-        <router-link to="/">Pachamama</router-link>
-      </div>
+    <div class="container">
+      <router-link to="/" class="logo">
+        <span class="logo-text">Pachamama</span>
+      </router-link>
 
       <div class="navbar-links">
         <router-link to="/" class="nav-link">Inicio</router-link>
@@ -149,5 +149,27 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
+}
+
+.logo {
+  text-decoration: none;
+  color: var(--primary-color, #5f8e3e);
+  display: flex;
+  align-items: center;
+}
+
+.logo-text {
+  font-family: 'Rye', cursive; /* Aplicar la fuente Rye */
+  font-size: 1.5rem;
+  font-weight: normal; /* La fuente Rye ya es bastante decorativa */
+  margin: 0;
+  letter-spacing: 1px; /* Espaciado entre letras para mejor legibilidad */
+}
+
+/* Si necesitas ajustar el tamaño en dispositivos móviles */
+@media (max-width: 768px) {
+  .logo-text {
+    font-size: 1.2rem;
+  }
 }
 </style>
