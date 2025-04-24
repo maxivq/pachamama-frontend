@@ -153,7 +153,7 @@ onMounted(() => {
 
 .logo {
   text-decoration: none;
-  color: var(--primary-color, #5f8e3e);
+  color: white; /* Cambiado a blanco */
   display: flex;
   align-items: center;
 }
@@ -164,6 +164,7 @@ onMounted(() => {
   font-weight: normal; /* La fuente Rye ya es bastante decorativa */
   margin: 0;
   letter-spacing: 1px; /* Espaciado entre letras para mejor legibilidad */
+  color: white; /* Asegurar que el texto sea blanco */
 }
 
 /* Si necesitas ajustar el tamaño en dispositivos móviles */
