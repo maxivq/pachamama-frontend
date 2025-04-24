@@ -77,3 +77,35 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+.navbar {
+  display: flex;
+  width: 100%;
+  background-color: #5f8e3e; /* Color verde de Pachamama */
+  padding: 1rem 0;
+}
+
+.navbar .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.navbar-links {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.nav-link {
+  color: white;
+  font-weight: 500;
+}
+
+.nav-link:hover {
+  text-decoration: underline;
+}
