@@ -153,18 +153,17 @@ onMounted(() => {
 
 .logo {
   text-decoration: none;
-  color: white; /* Cambiado a blanco */
+  color: white;
   display: flex;
   align-items: center;
 }
 
 .logo-text {
-  font-family: 'Rye', cursive; /* Aplicar la fuente Rye */
+  font-family: 'Rye', cursive !important; /* Añade !important para asegurar que se aplique */
   font-size: 1.5rem;
-  font-weight: normal; /* La fuente Rye ya es bastante decorativa */
+  color: white;
   margin: 0;
-  letter-spacing: 1px; /* Espaciado entre letras para mejor legibilidad */
-  color: white; /* Asegurar que el texto sea blanco */
+  letter-spacing: 1px;
 }
 
 /* Si necesitas ajustar el tamaño en dispositivos móviles */
